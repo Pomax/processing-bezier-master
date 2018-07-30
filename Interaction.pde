@@ -79,12 +79,9 @@ void mouseWheel(MouseEvent event) {
 
   SCALE += step;
 
-  // We want to scale "around" the cursor,
-  // so we need to do a bit of ROX/ROY
-  // correcting, to make sure that when
-  // redraw() occurs, the sketch has a new
-  // translation that maps the same point
-  // to where the mouse cursor trigged scaling.
+  // We want to scale "around" the cursor, so we need to do a bit of ROX/ROY
+  // correcting, to make sure that when redraw() occurs, the sketch has a new
+  // translation that maps the same point to where the mouse cursor trigged scaling.
 
   // values we can use for this:
   // - `width`, the canvas width in pixels
@@ -93,9 +90,8 @@ void mouseWheel(MouseEvent event) {
   // - `mouseY`, the screen y coordinate relative to the upper left corner for the mouse cursor
   // - SCALE, ROX, ROY, the current scale, and translation x- and y-offsets
   
-  // PointVectors are projected using their .project()
-  // function, invoked during fallthrough for draw 
-  // instructions in "ProjectionShims.pde"
+  // PointVectors are projected using their .project()/ function, invoked during
+  // fallthrough for draw instructions in "ProjectionShims.pde".
 
   redraw();
 }
