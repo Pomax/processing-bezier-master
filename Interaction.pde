@@ -86,6 +86,16 @@ void mouseWheel(MouseEvent event) {
   // translation that maps the same point
   // to where the mouse cursor trigged scaling.
 
+  // values we can use for this:
+  // - `width`, the canvas width in pixels
+  // - `height`, the canvas height in pixels
+  // - `mouseX`, the screen x coordinate relative to the upper left corner for the mouse cursor
+  // - `mouseY`, the screen y coordinate relative to the upper left corner for the mouse cursor
+  // - SCALE, ROX, ROY, the current scale, and translation x- and y-offsets
+  
+  // PointVectors are projected using their .project()
+  // function, invoked during fallthrough for draw 
+  // instructions in "ProjectionShims.pde"
 
   redraw();
 }
