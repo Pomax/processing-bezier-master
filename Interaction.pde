@@ -77,30 +77,15 @@ void mouseWheel(MouseEvent event) {
   float e = event.getCount(), 
     step = (e<0 ? 1 : -1) * 0.02;
 
-  // where are we, x/y wise? 
-  double tw = width / SCALE, 
-    th = height / SCALE;
-
   SCALE += step;
 
-  double nw = width / SCALE, 
-    nh = height / SCALE;
+  // We want to scale "around" the cursor,
+  // so we need to do a bit of ROX/ROY
+  // correcting, to make sure that when
+  // redraw() occurs, the sketch has a new
+  // translation that maps the same point
+  // to where the mouse cursor trigged scaling.
 
-  double nx = map(mouseX, 0, tw, 0, nw), 
-    ny = map(mouseY, 0, th, 0, nh);
-
-  double xdiff = mouseX - nx, 
-    ydiff = mouseY - ny;
-
-  // We want the mouse coordinate, expressed as ratio of the
-  // width/height, to remain the same. We know what the old
-  // and new values are, so we need to adjust ROX/ROY by
-  // the differences
-
-    ROX += -xdiff;
-    ROY += -ydiff;
-
-  // TODO: this is all wrong =)
 
   redraw();
 }
