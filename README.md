@@ -4,4 +4,4 @@ A master sketch for writing Bezier tests and PoC in [Processing](https://process
 
 1. clone it
 2. rename the `processing-bezier-master` dir to `Bezier`
-3. load Bezier.pde in the Processing IDE
+3. load `Bezier.pde` in the Processing IDE
