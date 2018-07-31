@@ -74,18 +74,24 @@ void mouseReleased() {
 }
 
 void mouseWheel(MouseEvent event) {
-  float e = event.getCount(), 
-    step = (e<0 ? 1 : -1) * 0.02;
+  // We want to zoom in at the cursor, but we want to zoom out away
+  // from the cursor, similar to how applications like Sketchup
+  // handle scroll based zoom.  
+  double step = event.getCount() < 0 ? 1 : -1, 
+    zoom = 1.1, 
+    zoomFactor = pow(zoom, abs(step)), 
+    moveFactor = zoomFactor - 1.0, 
+    // view to canvas  
+    zoomCenterX = (step>0 ? mouseX : (width - (width - mouseX))) / SCALE + ROX, 
+    zoomCenterY = (step>0 ? mouseY : (height - (height - mouseY))) /SCALE + ROY,
+    // translation shift
+    invZoomFactor = 1/zoomFactor,
+    x = (ROX - zoomCenterX) * (moveFactor * invZoomFactor), 
+    y = (ROY - zoomCenterY) * (moveFactor * invZoomFactor);
 
-  SCALE += step;
-
-  // We want to scale "around" the cursor,
-  // so we need to do a bit of ROX/ROY
-  // correcting, to make sure that when
-  // redraw() occurs, the sketch has a new
-  // translation that maps the same point
-  // to where the mouse cursor trigged scaling.
-
+  SCALE *= (step==1)? zoomFactor : invZoomFactor;
+  ROX += step * x;
+  ROY += step * y;
 
   redraw();
 }

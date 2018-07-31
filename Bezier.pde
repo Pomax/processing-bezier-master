@@ -34,16 +34,16 @@ void reset() {
 
   // view the scene with reasonably positioned graphics. 
   SCALE = 0.4; 
-  ROX = 0.3 * width;
-  ROY = 0.65 * height;
+  ROX = 0.95 * width;
+  ROY = 1.5 * height;
 }
 
 void draw() {
   // prep the canvas
   background(255);
-  translate(ROX, ROY);
   scale(SCALE);
-
+  translate(ROX, ROY);
+ 
   // draw all the things.
   grid.draw();
   curve.drawConstruction();
