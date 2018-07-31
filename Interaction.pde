@@ -15,6 +15,12 @@ interface BezierMouseListener {
   void handle();
 }
 
+int XMARK=-1, 
+  YMARK=-1,
+  XDIFF=0, 
+  YDIFF=0;
+
+
 ArrayList<BezierMouseListener> __mouse_moved = new ArrayList<BezierMouseListener>();
 
 void addMouseMovedListener(BezierMouseListener listener) {
@@ -33,6 +39,7 @@ void mouseMoved() {
   forwardToListeners(__mouse_moved);
 }
 
+
 ArrayList<BezierMouseListener> __mouse_dragged = new ArrayList<BezierMouseListener>();
 
 void addMouseDraggedListener(BezierMouseListener listener) {
@@ -45,9 +52,14 @@ void mouseDragged() {
     relocationPoint.y = mouseY;
     curve.update();
     redraw();
+  } else if (XMARK != -1 && YMARK != -1) {
+    XDIFF = mouseX - XMARK;
+    YDIFF = mouseY - YMARK;
   }
   forwardToListeners(__mouse_dragged);
+  redraw();
 }
+
 
 ArrayList<BezierMouseListener> __mouse_pressed = new ArrayList<BezierMouseListener>();
 
@@ -58,9 +70,15 @@ void addMousePressedListener(BezierMouseListener listener) {
 void mousePressed() {
   if (interactionPoint != null) {
     relocationPoint = interactionPoint;
+  } else {
+    println("marking");
+    XMARK = mouseX;
+    YMARK = mouseY;
   }
   forwardToListeners(__mouse_pressed);
+  redraw();
 }
+
 
 ArrayList<BezierMouseListener> __mouse_released = new ArrayList<BezierMouseListener>();
 
@@ -70,28 +88,47 @@ void addMouseReleasedListener(BezierMouseListener listener) {
 
 void mouseReleased() {
   relocationPoint = null;
+  if (XDIFF!=0 || YDIFF!=0) {
+    println("releasing");
+    OX += XDIFF;
+    OY += YDIFF;
+    XDIFF = 0;
+    YDIFF = 0;
+    XMARK = -1;
+    YMARK = -1;
+  }
   forwardToListeners(__mouse_released);
+  redraw();
+}
+
+
+ArrayList<BezierMouseListener> __mouse_wheel = new ArrayList<BezierMouseListener>();
+
+void addMouseWheelListener(BezierMouseListener listener) {
+  __mouse_wheel.add(listener);
 }
 
 void mouseWheel(MouseEvent event) {
   // We want to zoom in at the cursor, but we want to zoom out away
   // from the cursor, similar to how applications like Sketchup
   // handle scroll based zoom.  
-  double step = event.getCount() < 0 ? 1 : -1, 
+  double step = (event.getCount() < 0) ? 1 : -1, 
     zoom = 1.1, 
     zoomFactor = pow(zoom, abs(step)), 
     moveFactor = zoomFactor - 1.0, 
     // view to canvas  
-    zoomCenterX = (step>0 ? mouseX : (width - (width - mouseX))) / SCALE + ROX, 
-    zoomCenterY = (step>0 ? mouseY : (height - (height - mouseY))) /SCALE + ROY,
+    mx = (step > 0) ? mouseX : (width - (width - mouseX)),
+    my = (step > 0) ? mouseY : (height - (height - mouseY)),
+    zoomCenterX = (mx - OX)/SCALE + ROX, 
+    zoomCenterY = (my - OY)/SCALE + ROY, 
+    invZoomFactor = 1/zoomFactor, 
     // translation shift
-    invZoomFactor = 1/zoomFactor,
     x = (ROX - zoomCenterX) * (moveFactor * invZoomFactor), 
     y = (ROY - zoomCenterY) * (moveFactor * invZoomFactor);
-
-  SCALE *= (step==1)? zoomFactor : invZoomFactor;
+  // update our scale and world offset    
+  SCALE *= (step == 1)? zoomFactor : invZoomFactor;
   ROX += step * x;
   ROY += step * y;
-
+  forwardToListeners(__mouse_wheel);  
   redraw();
 }

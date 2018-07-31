@@ -1,8 +1,7 @@
 Grid grid;
 Curve curve = null;
 PointInformation pointInformation = null;
-
-float SCALE, ROX, ROY;
+float SCALE=1, OX=0, OY=0, ROX=0, ROY=0;
 
 // simple listener so that we can see information about a point near the mouse cursor
 class SeeCurvePointInformation implements BezierMouseListener {
@@ -41,9 +40,10 @@ void reset() {
 void draw() {
   // prep the canvas
   background(255);
+  translate(OX + XDIFF, OY + YDIFF);
   scale(SCALE);
   translate(ROX, ROY);
- 
+
   // draw all the things.
   grid.draw();
   curve.drawConstruction();
