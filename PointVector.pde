@@ -90,28 +90,32 @@ class PointVector extends Curve {
   }
 
   PointVector project() {
-    return project(-PI/6);
+    return project(PROJECTION_ANGLE_X - AXDIFF, PROJECTION_ANGLE_Z - AZDIFF);
   }
 
   /**
    * cabinet projection is good enough
    */
-  PointVector project(double phi) {
+  PointVector project(double phi, double rho) {
     ProjectionType type = getProjectionType();
-    
+
     if (type == ProjectionType.CABINET) {
       // What they rarely tell you: if you want z to "go up", x "come out of the screen"
       // and y to be the "left/right", we need this:
       double x =  this.y, 
         y = -this.z, 
         z = -this.x;
-      return new PointVector(x + z/2 * cos(phi), y + z/2 * sin(phi), 0);
+      return new PointVector(
+        x + z/2 * cos(phi), 
+        y + z/2 * sin(phi), 
+        0
+      );
     }
-    
+
     if (type == ProjectionType.TOP) {
       return new PointVector(x, -y, 0);
     }
-    
+
     return this;
   }
 

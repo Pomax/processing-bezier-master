@@ -15,11 +15,15 @@ interface BezierMouseListener {
   void handle();
 }
 
-int XMARK=-1, 
-  YMARK=-1,
+int AXMARK=-1, 
+  AYMARK=-1, 
+  XMARK=-1, 
+  YMARK=-1, 
   XDIFF=0, 
   YDIFF=0;
 
+double AXDIFF=0, 
+  AZDIFF=0;
 
 ArrayList<BezierMouseListener> __mouse_moved = new ArrayList<BezierMouseListener>();
 
@@ -53,8 +57,15 @@ void mouseDragged() {
     curve.update();
     redraw();
   } else if (XMARK != -1 && YMARK != -1) {
-    XDIFF = mouseX - XMARK;
-    YDIFF = mouseY - YMARK;
+    if (mouseButton==3) {
+      // change the projection angle
+      AXDIFF = (PI*float(mouseX - AXMARK)/width);
+      AZDIFF = (PI*float(mouseY - AYMARK)/width);
+    } else {
+      // pan the scene   
+      XDIFF = mouseX - XMARK;
+      YDIFF = mouseY - YMARK;
+    }
   }
   forwardToListeners(__mouse_dragged);
   redraw();
@@ -68,10 +79,12 @@ void addMousePressedListener(BezierMouseListener listener) {
 }
 
 void mousePressed() {
+
   if (interactionPoint != null) {
     relocationPoint = interactionPoint;
   } else {
-    println("marking");
+    AXMARK = mouseX;
+    AYMARK = mouseX;
     XMARK = mouseX;
     YMARK = mouseY;
   }
@@ -88,8 +101,17 @@ void addMouseReleasedListener(BezierMouseListener listener) {
 
 void mouseReleased() {
   relocationPoint = null;
+
+  if (AXDIFF!=0 || AZDIFF!=0) {
+    PROJECTION_ANGLE_X -= AXDIFF;
+    PROJECTION_ANGLE_Z -= AZDIFF;
+    AXDIFF = 0;
+    AZDIFF = 0;
+    AXMARK = -1;
+    AYMARK = -1;
+  }
+
   if (XDIFF!=0 || YDIFF!=0) {
-    println("releasing");
     OX += XDIFF;
     OY += YDIFF;
     XDIFF = 0;
@@ -109,16 +131,19 @@ void addMouseWheelListener(BezierMouseListener listener) {
 }
 
 void mouseWheel(MouseEvent event) {
+  double c = event.getCount();
+  if (c == 0) return;
+
   // We want to zoom in at the cursor, but we want to zoom out away
   // from the cursor, similar to how applications like Sketchup
-  // handle scroll based zoom.  
-  double step = (event.getCount() < 0) ? 1 : -1, 
+  // handle scroll based zoom.
+  double step = (c < 0) ? 1 : -1,
     zoom = 1.1, 
     zoomFactor = pow(zoom, abs(step)), 
     moveFactor = zoomFactor - 1.0, 
     // view to canvas  
-    mx = (step > 0) ? mouseX : (width - (width - mouseX)),
-    my = (step > 0) ? mouseY : (height - (height - mouseY)),
+    mx = (step > 0) ? mouseX : (width - (width - mouseX)), 
+    my = (step > 0) ? mouseY : (height - (height - mouseY)), 
     zoomCenterX = (mx - OX)/SCALE + ROX, 
     zoomCenterY = (my - OY)/SCALE + ROY, 
     invZoomFactor = 1/zoomFactor, 
