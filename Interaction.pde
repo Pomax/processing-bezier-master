@@ -16,7 +16,7 @@ interface BezierMouseListener {
 }
 
 int AXMARK=-1, 
-  AYMARK=-1, 
+  AZMARK=-1, 
   XMARK=-1, 
   YMARK=-1, 
   XDIFF=0, 
@@ -56,17 +56,21 @@ void mouseDragged() {
     relocationPoint.y = mouseY;
     curve.update();
     redraw();
-  } else if (XMARK != -1 && YMARK != -1) {
-    if (mouseButton==3) {
-      // change the projection angle
-      AXDIFF = (PI*float(mouseX - AXMARK)/width);
-      AZDIFF = (PI*float(mouseY - AYMARK)/width);
-    } else {
-      // pan the scene   
-      XDIFF = mouseX - XMARK;
-      YDIFF = mouseY - YMARK;
-    }
   }
+
+  // change the projection angles
+  if (mouseButton==3 && (AXMARK != -1 && AZMARK != -1)) {
+    AXDIFF = (PI*float(mouseX - AXMARK)/width);
+    AZDIFF = (PI*float(AZMARK - mouseY)/height);
+    println(AXDIFF, AZDIFF);
+  }
+
+  // pan the scene   
+  if (mouseButton!=3 && (XMARK != -1 && YMARK != -1)) {
+    XDIFF = mouseX - XMARK;
+    YDIFF = mouseY - YMARK;
+  }
+  
   forwardToListeners(__mouse_dragged);
   redraw();
 }
@@ -84,11 +88,12 @@ void mousePressed() {
     relocationPoint = interactionPoint;
   } else {
     AXMARK = mouseX;
-    AYMARK = mouseX;
+    AZMARK = mouseY;
     XMARK = mouseX;
     YMARK = mouseY;
   }
   forwardToListeners(__mouse_pressed);
+  println(AXMARK, AZMARK);
   redraw();
 }
 
@@ -103,12 +108,12 @@ void mouseReleased() {
   relocationPoint = null;
 
   if (AXDIFF!=0 || AZDIFF!=0) {
-    PROJECTION_ANGLE_X -= AXDIFF;
-    PROJECTION_ANGLE_Z -= AZDIFF;
+    PROJECTION_ANGLE_X += AXDIFF;
+    PROJECTION_ANGLE_Z += AZDIFF;
     AXDIFF = 0;
     AZDIFF = 0;
     AXMARK = -1;
-    AYMARK = -1;
+    AZMARK = -1;
   }
 
   if (XDIFF!=0 || YDIFF!=0) {
@@ -119,6 +124,7 @@ void mouseReleased() {
     XMARK = -1;
     YMARK = -1;
   }
+
   forwardToListeners(__mouse_released);
   redraw();
 }

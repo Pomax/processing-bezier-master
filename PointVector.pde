@@ -90,7 +90,7 @@ class PointVector extends Curve {
   }
 
   PointVector project() {
-    return project(PROJECTION_ANGLE_X - AXDIFF, PROJECTION_ANGLE_Z - AZDIFF);
+    return project(PROJECTION_ANGLE_X + AXDIFF, PROJECTION_ANGLE_Z + AZDIFF);
   }
 
   /**
@@ -98,18 +98,29 @@ class PointVector extends Curve {
    */
   PointVector project(double phi, double rho) {
     ProjectionType type = getProjectionType();
+    double cab =  -PI/6;
 
     if (type == ProjectionType.CABINET) {
       // What they rarely tell you: if you want z to "go up", x "come out of the screen"
       // and y to be the "left/right", we need this:
-      double x =  this.y, 
-        y = -this.z, 
-        z = -this.x;
+
+      double nx = this.x * cos(rho) - this.z * sin(rho), 
+        ny = this.y, 
+        nz = this.x * sin(rho) + this.z * cos(rho);
+
+    double tx = nx * cos(phi) - ny * sin(phi), 
+        ty = nx * sin(phi) + ny * cos(phi), 
+        tz = nz;
+
+      double x =  ty,
+        y = -tz, 
+        z = -tx;
+
       return new PointVector(
-        x + z/2 * cos(phi), 
-        y + z/2 * sin(phi), 
+        x + z/2 * cos(cab), 
+        y + z/2 * sin(cab), 
         0
-      );
+        );
     }
 
     if (type == ProjectionType.TOP) {
