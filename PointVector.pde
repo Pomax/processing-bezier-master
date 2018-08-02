@@ -1,8 +1,19 @@
-class PointVector extends Curve {
+public class PointVector extends Curve {
   // special values for point-on/along-curve purposes.
   double t, d;
 
   double x, y, z;
+  
+  // This is a silly method, but is necessary to overcome
+  // the fact that technically this is all a giant collection
+  // of inner classes, so the static Projector can't see any
+  // class "inside" of this sketch, even though the code is
+  // literally _right there_ ... so, instances get to act
+  // as factories, too. I don't like it, but I don't like
+  // not having a static projector even more.
+  PointVector build(double x, double y, double z) {
+    return new PointVector(x,y,z);
+  }
 
   public PointVector(double x, double y, double z) {
     this.x = x;
@@ -90,44 +101,7 @@ class PointVector extends Curve {
   }
 
   PointVector project() {
-    return project(PROJECTION_ANGLE_X + AXDIFF, PROJECTION_ANGLE_Z + AZDIFF);
-  }
-
-  /**
-   * cabinet projection is good enough
-   */
-  PointVector project(double phi, double rho) {
-    ProjectionType type = getProjectionType();
-    double cab =  -PI/6;
-
-    if (type == ProjectionType.CABINET) {
-      // What they rarely tell you: if you want z to "go up", x "come out of the screen"
-      // and y to be the "left/right", we need this:
-
-      double nx = this.x * cos(rho) - this.z * sin(rho), 
-        ny = this.y, 
-        nz = this.x * sin(rho) + this.z * cos(rho);
-
-    double tx = nx * cos(phi) - ny * sin(phi), 
-        ty = nx * sin(phi) + ny * cos(phi), 
-        tz = nz;
-
-      double x =  ty,
-        y = -tz, 
-        z = -tx;
-
-      return new PointVector(
-        x + z/2 * cos(cab), 
-        y + z/2 * sin(cab), 
-        0
-        );
-    }
-
-    if (type == ProjectionType.TOP) {
-      return new PointVector(x, -y, 0);
-    }
-
-    return this;
+    return Projector.project(this, PROJECTION_ANGLE_X + AXDIFF, PROJECTION_ANGLE_Z + AZDIFF);
   }
 
   PointVector lerp(PointVector other, double ratio) {

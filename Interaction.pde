@@ -62,7 +62,6 @@ void mouseDragged() {
   if (mouseButton==3 && (AXMARK != -1 && AZMARK != -1)) {
     AXDIFF = (PI*float(mouseX - AXMARK)/width);
     AZDIFF = (PI*float(AZMARK - mouseY)/height);
-    println(AXDIFF, AZDIFF);
   }
 
   // pan the scene   
@@ -93,7 +92,6 @@ void mousePressed() {
     YMARK = mouseY;
   }
   forwardToListeners(__mouse_pressed);
-  println(AXMARK, AZMARK);
   redraw();
 }
 
